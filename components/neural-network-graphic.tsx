@@ -5,6 +5,8 @@ import { motion } from "framer-motion"
 
 import { useLanguage } from "@/components/language-provider"
 
+type NodeKind = "normal" | "prompt" | "response"
+
 type Node = {
   x: number
   y: number
@@ -13,6 +15,7 @@ type Node = {
   vx: number
   vy: number
   layer: number
+  kind: NodeKind
   pulse: number
   pulseSpeed: number
   radius: number
@@ -45,6 +48,8 @@ export function NeuralNetworkGraphic() {
     input: t.hero.layerInput,
     hidden: t.hero.layerHidden,
     output: t.hero.layerOutput,
+    prompt: t.hero.particlePrompt,
+    response: t.hero.particleResponse,
   })
 
   useEffect(() => {
@@ -52,6 +57,8 @@ export function NeuralNetworkGraphic() {
       input: t.hero.layerInput,
       hidden: t.hero.layerHidden,
       output: t.hero.layerOutput,
+      prompt: t.hero.particlePrompt,
+      response: t.hero.particleResponse,
     }
   }, [t, locale])
 
@@ -74,7 +81,10 @@ export function NeuralNetworkGraphic() {
     let isDragging = false
     let draggedNode: Node | null = null
     let time = 0
+    let promptIndex = -1
+    let responseIndex = -1
 
+    // Network layers only (terminals sit outside)
     const layerCounts = [4, 7, 9, 7, 5, 3]
 
     const setCanvasDimensions = () => {
@@ -88,6 +98,27 @@ export function NeuralNetworkGraphic() {
       buildNetwork()
     }
 
+    const makeNode = (
+      x: number,
+      y: number,
+      layer: number,
+      kind: NodeKind,
+      radius: number,
+    ): Node => ({
+      x,
+      y,
+      baseX: x,
+      baseY: y,
+      vx: 0,
+      vy: 0,
+      layer,
+      kind,
+      pulse: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.015 + Math.random() * 0.02,
+      radius,
+      mass: kind === "normal" ? 0.8 + Math.random() * 0.5 : 1.2,
+    })
+
     const buildNetwork = () => {
       nodes = []
       edges = []
@@ -95,11 +126,18 @@ export function NeuralNetworkGraphic() {
       draggedNode = null
       isDragging = false
 
-      const paddingX = Math.max(40, width * 0.08)
-      const paddingY = Math.max(48, height * 0.12)
-      const usableW = width - paddingX * 2
+      const sidePad = Math.max(72, width * 0.14)
+      const paddingY = Math.max(56, height * 0.14)
+      const networkLeft = sidePad
+      const networkRight = width - sidePad
+      const usableW = networkRight - networkLeft
       const usableH = height - paddingY * 2
       const layerGap = usableW / (layerCounts.length - 1)
+      const centerY = paddingY + usableH / 2
+
+      // Left terminal particle: "你好"
+      promptIndex = nodes.length
+      nodes.push(makeNode(Math.max(28, sidePad * 0.38), centerY, -1, "prompt", 9))
 
       const layerStartIndex: number[] = []
 
@@ -108,24 +146,35 @@ export function NeuralNetworkGraphic() {
         const gapY = count === 1 ? 0 : usableH / (count - 1)
 
         for (let i = 0; i < count; i++) {
-          const x = paddingX + layer * layerGap
-          const y = count === 1 ? paddingY + usableH / 2 : paddingY + i * gapY
-          nodes.push({
-            x,
-            y,
-            baseX: x,
-            baseY: y,
-            vx: 0,
-            vy: 0,
-            layer,
-            pulse: Math.random() * Math.PI * 2,
-            pulseSpeed: 0.015 + Math.random() * 0.02,
-            radius: layer === 0 || layer === layerCounts.length - 1 ? 6 : 5,
-            mass: 0.8 + Math.random() * 0.5,
-          })
+          const x = networkLeft + layer * layerGap
+          const y = count === 1 ? centerY : paddingY + i * gapY
+          nodes.push(
+            makeNode(
+              x,
+              y,
+              layer,
+              "normal",
+              layer === 0 || layer === layerCounts.length - 1 ? 6 : 5,
+            ),
+          )
         }
       })
 
+      // Right terminal particle: "你好，我是Jackie"
+      responseIndex = nodes.length
+      nodes.push(makeNode(Math.min(width - 28, width - sidePad * 0.38), centerY, layerCounts.length, "response", 9))
+
+      // Prompt → every input-layer node
+      const inputStart = layerStartIndex[0]
+      for (let i = 0; i < layerCounts[0]; i++) {
+        edges.push({
+          from: promptIndex,
+          to: inputStart + i,
+          weight: 0.55 + Math.random() * 0.45,
+        })
+      }
+
+      // Hidden connections between layers
       for (let layer = 0; layer < layerCounts.length - 1; layer++) {
         const fromStart = layerStartIndex[layer]
         const toStart = layerStartIndex[layer + 1]
@@ -145,7 +194,18 @@ export function NeuralNetworkGraphic() {
         }
       }
 
-      for (let i = 0; i < 18; i++) {
+      // Every output-layer node → response
+      const lastLayer = layerCounts.length - 1
+      const outputStart = layerStartIndex[lastLayer]
+      for (let i = 0; i < layerCounts[lastLayer]; i++) {
+        edges.push({
+          from: outputStart + i,
+          to: responseIndex,
+          weight: 0.55 + Math.random() * 0.45,
+        })
+      }
+
+      for (let i = 0; i < 22; i++) {
         spawnSignal()
       }
     }
@@ -219,11 +279,9 @@ export function NeuralNetworkGraphic() {
       for (const node of nodes) {
         if (isDragging && node === draggedNode) continue
 
-        // Spring back to home position
         let fx = (node.baseX - node.x) * SPRING
         let fy = (node.baseY - node.y) * SPRING
 
-        // Magnet attraction toward cursor
         const dx = mouseX - node.x
         const dy = mouseY - node.y
         const dist = Math.hypot(dx, dy)
@@ -239,7 +297,6 @@ export function NeuralNetworkGraphic() {
         node.x += node.vx
         node.y += node.vy
 
-        // Limit how far a node can be pulled from its base
         const pullX = node.x - node.baseX
         const pullY = node.y - node.baseY
         const pullDist = Math.hypot(pullX, pullY)
@@ -252,11 +309,43 @@ export function NeuralNetworkGraphic() {
         }
       }
 
-      // Update cursor when hovering a node
       if (!isDragging && mouseX > -1000) {
         const near = findNearestNode(mouseX, mouseY)
         canvas.style.cursor = near ? "grab" : "default"
       }
+    }
+
+    const drawTerminalLabel = (node: Node, text: string) => {
+      ctx.font = "600 13px ui-sans-serif, system-ui, sans-serif"
+      ctx.textAlign = "center"
+      ctx.textBaseline = "top"
+
+      const metrics = ctx.measureText(text)
+      const padX = 10
+      const padY = 6
+      const boxW = metrics.width + padX * 2
+      const boxH = 24
+      const boxY = node.y + node.radius + 14
+      const boxX = Math.min(Math.max(6, node.x - boxW / 2), width - boxW - 6)
+      const textX = boxX + boxW / 2
+
+      const r = 12
+      ctx.beginPath()
+      ctx.moveTo(boxX + r, boxY)
+      ctx.arcTo(boxX + boxW, boxY, boxX + boxW, boxY + boxH, r)
+      ctx.arcTo(boxX + boxW, boxY + boxH, boxX, boxY + boxH, r)
+      ctx.arcTo(boxX, boxY + boxH, boxX, boxY, r)
+      ctx.arcTo(boxX, boxY, boxX + boxW, boxY, r)
+      ctx.closePath()
+      ctx.fillStyle = "rgba(255, 255, 255, 0.82)"
+      ctx.fill()
+      ctx.strokeStyle = "rgba(59, 130, 246, 0.28)"
+      ctx.lineWidth = 1
+      ctx.stroke()
+
+      ctx.fillStyle = "rgba(30, 64, 175, 0.9)"
+      ctx.fillText(text, textX, boxY + padY - 1)
+      ctx.textBaseline = "alphabetic"
     }
 
     const draw = () => {
@@ -270,7 +359,6 @@ export function NeuralNetworkGraphic() {
       ctx.fillStyle = glow
       ctx.fillRect(0, 0, width, height)
 
-      // Magnet aura around cursor
       if (mouseX > -1000) {
         const magnetGlow = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, MAGNET_RADIUS)
         magnetGlow.addColorStop(0, "rgba(59, 130, 246, 0.12)")
@@ -282,7 +370,6 @@ export function NeuralNetworkGraphic() {
         ctx.fill()
       }
 
-      // Elastic tethers from base to current position
       nodes.forEach((node) => {
         const pull = Math.hypot(node.x - node.baseX, node.y - node.baseY)
         if (pull > 2) {
@@ -304,13 +391,14 @@ export function NeuralNetworkGraphic() {
         const midY = (from.y + to.y) / 2
         const distToMouse = Math.hypot(mouseX - midX, mouseY - midY)
         const mouseBoost = distToMouse < 90 ? (90 - distToMouse) / 90 : 0
-        const alpha = 0.08 + edge.weight * 0.12 + mouseBoost * 0.25
+        const isTerminalEdge = from.kind !== "normal" || to.kind !== "normal"
+        const alpha = (isTerminalEdge ? 0.16 : 0.08) + edge.weight * 0.12 + mouseBoost * 0.25
 
         ctx.beginPath()
         ctx.moveTo(from.x, from.y)
         ctx.lineTo(to.x, to.y)
         ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`
-        ctx.lineWidth = 0.8 + edge.weight * 0.8 + mouseBoost
+        ctx.lineWidth = (isTerminalEdge ? 1.2 : 0.8) + edge.weight * 0.8 + mouseBoost
         ctx.stroke()
 
         if (index % 7 === 0) {
@@ -366,10 +454,14 @@ export function NeuralNetworkGraphic() {
         const distToMouse = Math.hypot(mouseX - node.x, mouseY - node.y)
         const hover = distToMouse < 70 ? (70 - distToMouse) / 70 : 0
         const isActive = node === draggedNode
-        const r = node.radius + breath * 1.5 + hover * 2.5 + (isActive ? 2 : 0)
+        const isTerminal = node.kind !== "normal"
+        const r = node.radius + breath * 1.5 + hover * 2.5 + (isActive ? 2 : 0) + (isTerminal ? 1 : 0)
 
         const halo = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 4)
-        halo.addColorStop(0, `rgba(59, 130, 246, ${0.18 + hover * 0.25 + (isActive ? 0.2 : 0)})`)
+        halo.addColorStop(
+          0,
+          `rgba(59, 130, 246, ${0.18 + hover * 0.25 + (isActive ? 0.2 : 0) + (isTerminal ? 0.12 : 0)})`,
+        )
         halo.addColorStop(1, "rgba(59, 130, 246, 0)")
         ctx.fillStyle = halo
         ctx.beginPath()
@@ -377,9 +469,15 @@ export function NeuralNetworkGraphic() {
         ctx.fill()
 
         const core = ctx.createRadialGradient(node.x - 1, node.y - 1, 0, node.x, node.y, r)
-        core.addColorStop(0, "#eff6ff")
-        core.addColorStop(0.45, "#60a5fa")
-        core.addColorStop(1, "#1d4ed8")
+        if (isTerminal) {
+          core.addColorStop(0, "#ffffff")
+          core.addColorStop(0.35, "#93c5fd")
+          core.addColorStop(1, "#1d4ed8")
+        } else {
+          core.addColorStop(0, "#eff6ff")
+          core.addColorStop(0.45, "#60a5fa")
+          core.addColorStop(1, "#1d4ed8")
+        }
         ctx.beginPath()
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2)
         ctx.fillStyle = core
@@ -388,19 +486,21 @@ export function NeuralNetworkGraphic() {
         ctx.beginPath()
         ctx.arc(node.x, node.y, r, 0, Math.PI * 2)
         ctx.strokeStyle = `rgba(255, 255, 255, ${0.55 + hover * 0.35})`
-        ctx.lineWidth = 1
+        ctx.lineWidth = isTerminal ? 1.6 : 1
         ctx.stroke()
       })
 
       const labels = labelsRef.current
-      ctx.fillStyle = "rgba(100, 116, 139, 0.55)"
-      ctx.font = "11px ui-sans-serif, system-ui, sans-serif"
-      ctx.textAlign = "center"
-      if (nodes.length > 0) {
-        const inputNodes = nodes.filter((n) => n.layer === 0)
-        const outputNodes = nodes.filter((n) => n.layer === layerCounts.length - 1)
+      const networkNodes = nodes.filter((n) => n.kind === "normal")
+      if (networkNodes.length > 0) {
+        ctx.fillStyle = "rgba(100, 116, 139, 0.55)"
+        ctx.font = "11px ui-sans-serif, system-ui, sans-serif"
+        ctx.textAlign = "center"
+
+        const inputNodes = networkNodes.filter((n) => n.layer === 0)
+        const outputNodes = networkNodes.filter((n) => n.layer === layerCounts.length - 1)
         const midLayer = Math.floor(layerCounts.length / 2)
-        const midNodes = nodes.filter((n) => n.layer === midLayer)
+        const midNodes = networkNodes.filter((n) => n.layer === midLayer)
 
         if (inputNodes.length) {
           const x = inputNodes.reduce((s, n) => s + n.baseX, 0) / inputNodes.length
@@ -417,6 +517,13 @@ export function NeuralNetworkGraphic() {
           const y = Math.min(...outputNodes.map((n) => n.baseY)) - 18
           ctx.fillText(labels.output, x, y)
         }
+      }
+
+      if (promptIndex >= 0 && nodes[promptIndex]) {
+        drawTerminalLabel(nodes[promptIndex], labels.prompt)
+      }
+      if (responseIndex >= 0 && nodes[responseIndex]) {
+        drawTerminalLabel(nodes[responseIndex], labels.response)
       }
 
       animationId = requestAnimationFrame(draw)

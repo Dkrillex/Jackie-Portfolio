@@ -19,27 +19,29 @@ import { useLanguage } from "@/components/language-provider"
 import { siteConfig } from "@/lib/site-config"
 
 const projectImages = [
-  { src: "/placeholder.svg?height=240&width=400", alt: "EarthRenewal AI" },
-  { src: "/placeholder.svg?height=240&width=400", alt: "Authentrix" },
-  { src: "/placeholder.svg?height=240&width=400", alt: "Churn Prediction" },
-  { src: "/placeholder.svg?height=240&width=400", alt: "Fastly Chatbot" },
+  { src: "/placeholder.svg?height=240&width=400", alt: "AI Agent" },
+  { src: "/placeholder.svg?height=240&width=400", alt: "LLM Fine-tuning Platform" },
+  { src: "/placeholder.svg?height=240&width=400", alt: "AIGC Marketing Platform" },
+  { src: "/placeholder.svg?height=240&width=400", alt: "AI-Workflow Builder" },
+  { src: "/placeholder.svg?height=240&width=400", alt: "AIGC Infinite Canvas" },
+  { src: "/placeholder.svg?height=240&width=400", alt: "ALL-ERP System" },
 ]
 
-const skillDev = ["Python", "TensorFlow", "PyTorch", "Scikit-learn", "OpenCV", "Flask/FastAPI", "Java", "C++/C"]
-
 const additionalTech = [
-  { name: "Hugging Face", className: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40" },
-  { name: "Transformers", className: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40" },
-  { name: "NLTK", className: "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/40" },
-  { name: "spaCy", className: "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/40" },
-  { name: "Streamlit", className: "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40" },
-  { name: "Gradio", className: "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40" },
-  { name: "Whisper", className: "bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800 hover:bg-pink-100 dark:hover:bg-pink-900/40" },
+  { name: "GPT", className: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40" },
+  { name: "Gemini", className: "bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/40" },
+  { name: "Claude", className: "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800 hover:bg-orange-100 dark:hover:bg-orange-900/40" },
   { name: "LangChain", className: "bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800 hover:bg-teal-100 dark:hover:bg-teal-900/40" },
-  { name: "MongoDB", className: "bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/40" },
+  { name: "LlamaIndex", className: "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/40" },
+  { name: "Hugging Face", className: "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 hover:bg-yellow-100 dark:hover:bg-yellow-900/40" },
+  { name: "Dify", className: "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/40" },
+  { name: "Coze", className: "bg-pink-50 dark:bg-pink-900/20 border-pink-200 dark:border-pink-800 hover:bg-pink-100 dark:hover:bg-pink-900/40" },
   { name: "PostgreSQL", className: "bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/40" },
-  { name: "REST APIs", className: "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40" },
-  { name: "Postman", className: "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40" },
+  { name: "MongoDB", className: "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40" },
+  { name: "Redis", className: "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40" },
+  { name: "Docker", className: "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/40" },
+  { name: "REST APIs", className: "bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/40" },
+  { name: "WebSocket", className: "bg-violet-50 dark:bg-violet-900/20 border-violet-200 dark:border-violet-800 hover:bg-violet-100 dark:hover:bg-violet-900/40" },
 ]
 
 export default function Home() {
@@ -152,8 +154,8 @@ export default function Home() {
                   <CardContent>
                     <div className="aspect-video relative rounded-md overflow-hidden mb-4 bg-gray-100 dark:bg-gray-700 transform transition-transform duration-500 hover:scale-[1.02]">
                       <Image
-                        src={projectImages[index].src}
-                        alt={projectImages[index].alt}
+                        src={projectImages[index]?.src ?? "/placeholder.svg?height=240&width=400"}
+                        alt={projectImages[index]?.alt ?? project.title}
                         fill
                         className="object-cover"
                       />
@@ -235,7 +237,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-3">
-                    {skillDev.map((skill) => (
+                    {t.skills.dev.map((skill) => (
                       <Badge
                         key={skill}
                         variant="secondary"
@@ -256,7 +258,7 @@ export default function Home() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <span className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mr-2">
-                      <span className="text-green-600 dark:text-green-300 text-sm font-bold">DATA</span>
+                      <span className="text-green-600 dark:text-green-300 text-sm font-bold">PLT</span>
                     </span>
                     {t.skills.dataTitle}
                   </CardTitle>
@@ -323,7 +325,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="education" className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden py-20 px-4 scroll-mt-16">
+      <section id="education" className="relative flex flex-col justify-center overflow-hidden py-20 px-4 scroll-mt-16">
         <div className="absolute inset-0 z-0" aria-hidden>
           <div className="absolute top-1/4 right-1/4 h-64 w-64 rounded-full bg-blue-100 opacity-30 mix-blend-multiply blur-3xl filter" />
           <div className="absolute bottom-1/3 left-1/3 h-64 w-64 rounded-full bg-blue-100 opacity-30 mix-blend-multiply blur-3xl filter" />
@@ -333,49 +335,19 @@ export default function Home() {
             <h2 className="text-3xl font-bold mb-8 text-center">{t.education.title}</h2>
           </AnimatedSection>
 
-          <div className="mb-12">
-            <AnimatedSection direction="left" delay={0.2}>
-              <h3 className="text-2xl font-bold mb-6">{t.education.educationTitle}</h3>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1 transition-transform duration-300">
-                <div className="flex flex-col md:flex-row justify-between mb-4">
-                  <div>
-                    <h4 className="text-xl font-semibold">{t.education.degree}</h4>
-                    <p className="text-blue-600 dark:text-blue-500">{t.education.school}</p>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mt-2 md:mt-0">{t.education.year}</p>
+          <AnimatedSection direction="up" delay={0.2}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {t.education.certs.map((cert) => (
+                <div
+                  key={cert.title}
+                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1 transition-transform duration-300"
+                >
+                  <h3 className="font-semibold">{cert.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{cert.description}</p>
                 </div>
-                <div>
-                  <h5 className="font-medium mb-2">{t.education.coursesTitle}</h5>
-                  <div className="flex flex-wrap gap-2">
-                    {t.education.courses.map((course, index) => (
-                      <Badge key={course} variant="secondary" className={index % 2 === 0 ? "animate-pulse" : undefined}>
-                        {course}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </AnimatedSection>
-          </div>
-
-          <div>
-            <AnimatedSection direction="right" delay={0.3}>
-              <h3 className="text-2xl font-bold mb-6">{t.education.certsTitle}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {t.education.certs.map((cert, index) => (
-                  <div
-                    key={cert.title}
-                    className={`bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-md hover:shadow-lg transition-shadow duration-300 hover:-translate-y-1 transition-transform duration-300 ${
-                      index === t.education.certs.length - 1 ? "md:col-span-2" : ""
-                    }`}
-                  >
-                    <h4 className="font-semibold">{cert.title}</h4>
-                    <p className="text-gray-600 dark:text-gray-400">{cert.description}</p>
-                  </div>
-                ))}
-              </div>
-            </AnimatedSection>
-          </div>
+              ))}
+            </div>
+          </AnimatedSection>
         </div>
       </section>
 
