@@ -1,30 +1,17 @@
-# Professional portfolio website
+# Jackie-Portfolio
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+Jackie Chen（陈祥禧）的个人作品集网站 — AI 工程师 & AI 产品经理。
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/k213064-nuedupks-projects/v0-professional-portfolio-website)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/sw4x0VzL0Sm)
+## 本地运行
 
-## Overview
+```bash
+pnpm install
+pnpm dev
+```
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## 技术栈
 
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/k213064-nuedupks-projects/v0-professional-portfolio-website](https://vercel.com/k213064-nuedupks-projects/v0-professional-portfolio-website)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.dev/chat/projects/sw4x0VzL0Sm](https://v0.dev/chat/projects/sw4x0VzL0Sm)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- Framer Motion
